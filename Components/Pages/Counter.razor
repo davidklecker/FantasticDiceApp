@@ -1,0 +1,217 @@
+﻿@page "/counter"
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+<div style="position:absolute;left:25px;bottom:25px;z-index:55">
+    <div class="accordion">
+        <div class="accordion-item border-0 text-center rounded-3 bg-transparent">
+            <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                    <div class="d-flex flex-column">
+                        <button class="btn" @onclick="()=>ClearDice()"><i class="fa-solid fa-ban font-xxxl text-danger"></i></button>
+                        <div class="d-flex flex-row">
+                            <button class="btn" @onclick="()=>IncrementDice(4)">
+                                @if (NumberOf4SidedDiceToRoll > 0)
+                                {
+                                    <img src="res/dice/PNG/D4.png" style="width:30px;" />
+                                }
+                                else
+                                {
+                                    <img src="res/dice/PNG/D4 Outline.png" style="width:30px;" />
+                                }
+                            </button>
+                            <div>@NumberOf4SidedDiceToRoll</div>
+                        </div>
+                        <div class="d-flex flex-row">
+                            <button class="btn" @onclick="()=>IncrementDice(6)">
+                                @if (NumberOf6SidedDiceToRoll > 0)
+                                {
+                                    <img src="res/dice/PNG/D6.png" style="width:30px;" />
+                                }
+                                else
+                                {
+                                    <img src="res/dice/PNG/D6 Outline.png" style="width:30px;" />
+                                }
+                            </button>
+                            <div>@NumberOf6SidedDiceToRoll</div>
+                        </div>
+                        <div class="d-flex flex-row">
+                            <button class="btn" @onclick="()=>IncrementDice(8)">
+                                @if (NumberOf8SidedDiceToRoll > 0)
+                                {
+                                    <img src="res/dice/PNG/D8.png" style="width:30px;" />
+                                }
+                                else
+                                {
+                                    <img src="res/dice/PNG/D8 Outline.png" style="width:30px;" />
+                                }
+                            </button>
+                            <div>@NumberOf8SidedDiceToRoll</div>
+                        </div>
+                        <div class="d-flex flex-row">
+                            <button class="btn" @onclick="()=>RollDice(1, 100)">
+                                <img src="res/dice/PNG/D10 Outline.png" style="width:30px;" />
+                                <img src="res/dice/PNG/D10 Outline.png" style="width:30px;" />
+                            </button>
+                        </div>
+                        <div class="d-flex flex-row">
+                            <button class="btn" @onclick="()=>IncrementDice(12)">
+                                @if (NumberOf12SidedDiceToRoll > 0)
+                                {
+                                    <img src="res/dice/PNG/D12.png" style="width:30px;" />
+                                }
+                                else
+                                {
+                                    <img src="res/dice/PNG/D12 Outline.png" style="width:30px;" />
+                                }
+                            </button>
+                            <div>@NumberOf12SidedDiceToRoll</div>
+                        </div>
+                        <div class="d-flex flex-row">
+                            <button class="btn" @onclick="()=>IncrementDice(20)">
+                                @if (NumberOf20SidedDiceToRoll > 0)
+                                {
+                                    <img src="res/dice/PNG/D20.png" style="width:30px;" />
+                                }
+                                else
+                                {
+                                    <img src="res/dice/PNG/D20 Outline.png" style="width:30px;" />
+                                }
+                            </button>
+                            <div>@NumberOf20SidedDiceToRoll</div>
+                        </div>
+                        <button class="btn btn-outline-success btn-gradient btn-custom" @onclick='()=>RollDice("")'>Roll</button>
+                    </div>
+                </div>
+            </div>
+            <h2 class="accordion-header" id="headingOne">
+                <button class="btn" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    <img src="res/dice/d20fullcolor.png" style="width:75px;height:75px;" />
+                </button>
+            </h2>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Inject]
+    private IJSRuntime JS { get; set; } = default!;
+    public string customStringOfDice { get; set; } = "1d100";
+    public int NumberOf4SidedDiceToRoll = 0;
+    public int NumberOf6SidedDiceToRoll = 0;
+    public int NumberOf8SidedDiceToRoll = 0;
+    public int NumberOf10SidedDiceToRoll = 0;
+    public int NumberOf12SidedDiceToRoll = 0;
+    public int NumberOf20SidedDiceToRoll = 0;
+
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("DiceBoxCall.init", DotNetObjectReference.Create(this));
+                await RollDice(3, 10);
+        }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"JS Interop error: {ex.Message}");
+            }
+        }
+    }
+
+    public async Task ClearDice()
+    {
+        NumberOf4SidedDiceToRoll = 0;
+        NumberOf6SidedDiceToRoll = 0;
+        NumberOf8SidedDiceToRoll = 0;
+        NumberOf10SidedDiceToRoll = 0;
+        NumberOf12SidedDiceToRoll = 0;
+        NumberOf20SidedDiceToRoll = 0;
+        await JS.InvokeVoidAsync("ClearBoard");
+    }
+
+    public void IncrementDice(int Faces)
+    {
+        int sum = NumberOf4SidedDiceToRoll + NumberOf6SidedDiceToRoll + NumberOf8SidedDiceToRoll + NumberOf10SidedDiceToRoll + NumberOf12SidedDiceToRoll + NumberOf20SidedDiceToRoll;
+        if (sum < 25)
+        {
+            switch (Faces)
+            {
+                case 4:
+                    if (NumberOf4SidedDiceToRoll < 25)
+                        NumberOf4SidedDiceToRoll++;
+                    break;
+                case 6:
+                    if (NumberOf6SidedDiceToRoll < 25)
+                        NumberOf6SidedDiceToRoll++;
+                    break;
+                case 8:
+                    if (NumberOf8SidedDiceToRoll < 25)
+                        NumberOf8SidedDiceToRoll++;
+                    break;
+                case 10:
+                    if (NumberOf10SidedDiceToRoll < 25)
+                        NumberOf10SidedDiceToRoll++;
+                    break;
+                case 12:
+                    if (NumberOf12SidedDiceToRoll < 25)
+                        NumberOf12SidedDiceToRoll++;
+                    break;
+                case 20:
+                    if (NumberOf20SidedDiceToRoll < 25)
+                        NumberOf20SidedDiceToRoll++;
+                    break;
+            }
+        }
+    }
+
+    //Fantastic Dice. Automatic roll from image.
+    public async Task RollDice(int number, int face)
+    {
+        await JS.InvokeVoidAsync("RollTheDice", number, face);
+        string results = await JS.InvokeAsync<string>("GetResults");
+        Console.WriteLine(results);
+    }
+
+    //Fantastic Dice. Custom Dice Rol.
+
+    public async Task RollDice(string val)
+    {
+        val = "[";
+
+        if (NumberOf4SidedDiceToRoll > 0)
+            val += $"\"{NumberOf4SidedDiceToRoll}d4\",";
+        if (NumberOf6SidedDiceToRoll > 0)
+            val += $"\"{NumberOf6SidedDiceToRoll}d6\",";
+        if (NumberOf8SidedDiceToRoll > 0)
+            val += $"\"{NumberOf8SidedDiceToRoll}d8\",";
+        if (NumberOf10SidedDiceToRoll > 0)
+            val += $"\"{NumberOf10SidedDiceToRoll}d10\",";
+        if (NumberOf12SidedDiceToRoll > 0)
+            val += $"\"{NumberOf12SidedDiceToRoll}d12\",";
+        if (NumberOf20SidedDiceToRoll > 0)
+            val += $"\"{NumberOf20SidedDiceToRoll}d20\",";
+
+        val = val.Substring(0, val.Length - 1);
+        val += "]";
+
+        await JS.InvokeVoidAsync("RollTheDiceCustom", val);
+        string results = await JS.InvokeAsync<string>("GetResults");
+        Console.WriteLine(results);
+    }
+
+}

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\res\dice\Layered SVG\.DS_Store" />
+    <None Include="wwwroot\res\dice\PNG\.DS_Store" />
+    <None Include="wwwroot\res\dice\SVG\.DS_Store" />
+  </ItemGroup>
+
+</Project>
